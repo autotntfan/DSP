@@ -13,7 +13,7 @@ FILENAME = 'HW2-bass.m4a';
 [y,fs1] = audioread([DIR FILENAME]);
 y = y(:,1); % choose only the first channel.
 
-soundsc(y,fs1);
+%soundsc(y,fs1);
 fs = 16000;
 p = 20; % linear prediction, no need to change here (beyond the scope of this homework).
 
@@ -22,15 +22,15 @@ y = resample(y,fs,fs1);
 framelen = 0.1; % second. [INVESTIGATE]
 L = framelen * fs;
 
-sw.emphasis = 0; % default = 1
-
+sw.emphasis = 1; % default = 1
+% sw.emphasis = 0;
 numFrames = floor(length(y)/L);
 
 Nfreqs = 2^nextpow2(2*L-1)/2; % Num points for plotting the inverse filter response
 df = fs/2/Nfreqs;
 ff = 0:df:fs/2-df;
 
-if sw.emphasis == 1
+if sw.emphasis == 0
     y_emph = filter([1 -0.95],1,y); % This boosts up the high frequency
                 %[PARAM] -0.95 may be tuned anywhere from 0.9 to 0.99
 else
