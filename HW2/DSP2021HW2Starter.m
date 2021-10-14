@@ -38,10 +38,11 @@ else
 end
 
 %% STFT and viewing
-win = ones(L,1); % Rectangular window.
-%win = hann(L+1); win = win(1:end-1); 
+% win = ones(L,1); % Rectangular window.
+win = hann(L+1); win = win(1:end-1); 
     % Remark: this somewhat awkward way correctly creats a Hann window that
     % satisfies the constant overlap-add condition (will be useful for HW3)
+foundamental = zeros(1,numFrames);
 for kk = 1:numFrames
     ind = (kk-1)*L+1:kk*L;
     ywin = y_emph(ind).*win;
@@ -60,14 +61,33 @@ for kk = 1:numFrames
     Ymag = 20*log10(abs(Y(1:Nfreqs))); %
     Hmax = max(Hmag);
     offset = max(Hmag) - max(Ymag);
+    
+    Ymag = Ymag+offset;
+    Y_diff = Ymag(1:end-1) -  Ymag(2:end);
+    changesign = (Y_diff(1:end-1,:).*Y_diff(2:end,:))<0;
+    changesign = [false;changesign;false];
+    changesign = changesign(1:256);
+    ff_extreme = ff(changesign);
+    val_extreme = Ymag(changesign);
+    sigma = std(val_extreme);
+    mu = mean(val_extreme);
+    threshold = mu + 0.5*sigma;
+    
     plot(ff,Hmag); hold on;
-    plot(ff,Ymag+offset,'r'); hold off;
+    plot(ff,Ymag,'r',ff_extreme,val_extreme,'go'); hold off;
     set(gca,'xlim',[0 fs/2],'ylim',[Hmax-50, Hmax+5]);
     xlabel('Hz')
-    
+    ff_extreme = ff_extreme(val_extreme > threshold);
+    jj=1;
+    foundamental(kk) = ff_extreme(jj);
+    while foundamental(kk) < 80
+        jj = jj + 1;
+        foundamental(kk) = ff_extreme(jj);
+    end
     drawnow;
-    %pause;
 end
+
+
 
 figure(2)
 param.fs = fs;
@@ -76,3 +96,6 @@ mySpecgram(y,win,L/2,L,param);
 setFontSizeForAll(14); % This function is a plotting routine I created. 
                         % It goes through all the figures and set the font
                         % the same size.
+                        
+figure
+plot(foundamental)
