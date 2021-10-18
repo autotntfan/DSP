@@ -11,37 +11,33 @@ close all
 % 
 % audiowrite('ABBAfs_4.wav',y,fs/4)
 
-n = -20:20;
-h = sqrt(3)*(-1).^(n+1)./(2*pi*(n-1/3));
+n = 0:1:40;
+% h = sqrt(3)*(-1).^(n+1)./(2*pi*(n-1/3));
 h1 = sin((n-1/3)*pi)./((n-1/3)*pi);
-stem(n,h)
+stem(n,h1)
 xlabel('n')
 ylabel('amplitude')
 figure
-stem(n,h1)
-figure
-[h,w] = freqz(h);
-plot(w,angle(h));
-figure
-plot(w,abs(h));
-w = 0:0.1:2*pi;
-H = exp(-1j*w./3);
-figure,plot(w,angle(H))
+freqz(h1);
+
+
+
 % 
-% figure
-% fs = 20;
-% t = -20:1/fs:20;
-% freq = linspace(-fs/2,fs/2,length(t));
-% h1 = sin((t-1/3)*pi)./((t-1/3)*pi);
-% z = fftshift(fft(h1));
-% plot(freq,abs(z))
-% figure
-% tol = 1e-6;
-% z(abs(z) < tol) = 0;
-% plot(freq,angle(z)/pi)
-% 
-% t = 0:0.01:1;
-% y = sin(2*pi*4*t);
-% plot(t,y);
-% figure
-% plot(t,ifft(ifftshift(fftshift(fft(y)))))
+% % figure
+% % fs = 20;
+% % t = -20:1/fs:20;
+% % freq = linspace(-fs/2,fs/2,length(t));
+% % h1 = sin((t-1/3)*pi)./((t-1/3)*pi);
+% % z = fftshift(fft(h1));
+% % plot(freq,abs(z))
+% % figure
+% % tol = 1e-6;
+% % z(abs(z) < tol) = 0;
+% % plot(freq,angle(z)/pi)
+% % 
+% % t = 0:0.01:1;
+% % y = sin(2*pi*4*t);
+% % plot(t,y);
+% % figure
+% % plot(t,ifft(ifftshift(fftshift(fft(y)))))
+
