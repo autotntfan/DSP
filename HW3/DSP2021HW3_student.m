@@ -11,7 +11,7 @@
 % music that you use for testing the code.  The music must have human
 % vocal parts in it.  
 
-clear; close all; clc;
+clear; close all;
 sw.plotFFT = 0;
 sw.window = 1; % set 1 for Hann, 0 for Rect
 
@@ -26,13 +26,13 @@ M = 128; %
 if sw.window % Hann window
     win = hann(M+1);
     win = win(1:end-1);
-    hopsize = ...; % determine a hopsize to satisfy the COLA condition 
+    hopsize = M-1; % determine a hopsize to satisfy the COLA condition 
 else % Rectangular window
     win = ones(M,1);
     hopsize = M;
 end
 
-num_frame = ... % total number of frames
+num_frame = floor(Ltotal/M); % total number of frames
 
 
 %% The code below designs a low-pass filter using fir1().
@@ -47,13 +47,13 @@ h = h(:);
 L = length(h);
 y = zeros(length(x) + L - 1, 1);
 
-N_zp = ...;  % Set the FFT number of bins to be sufficiently long
+N_zp = 2^nextpow2(L+M-1); % FFT number of bins to be sufficiently long
 
 % Reserve memory space
 x_win_zp = zeros(N_zp, 1);
 h_zp = zeros(N_zp, 1);
 h_zp(1:L) = h; % zero-padded impulse response
-H = ...; % perform FFT on h_zp
+H = fft(h_zp); % perform FFT on h_zp
 
 if ~sw.plotFFT
     tic % start the stopwatch
@@ -67,18 +67,18 @@ for mm = 1:num_frame
     t_start = (mm-1)*hopsize;
     
     tt = (t_start + 1):(t_start + M);
-    x_win = %....; % windowing
+    x_win = x(tt); % windowing
     x_win_zp(1:M) = x_win;  % zero-padding
-    
-    % Filtering using direct multiplication in freq. domain
-    X =  ...;       % perform FFT on x_win_zp
-    Y =  ...;       % multiply the FFT of x_win_zp and h_zp in freq domain
-    y_win =  ...;   % take inverse transform of result in 3.(b)
-    
+%     
+%     % Filtering using direct multiplication in freq. domain
+%     X =  fft(x_win_zp);       % perform FFT on x_win_zp
+%     Y =  X.*H;       % multiply the FFT of x_win_zp and h_zp in freq domain
+%     y_win =  ifft(Y);   % take inverse transform of result in 3.(b)
+    y_win = conv(x_win_zp,h_zp,'same');
     
     %% overlap-add
     tt2 = 1:(M+L-1);
-    y(t_start + tt2) = ...;
+    y(t_start + tt2) = y_win;
 
     %% plot FFT
     if sw.plotFFT
@@ -91,7 +91,7 @@ for mm = 1:num_frame
         xlabel('kHz');
         ylabel('dB');
         title(sprintf('t = %.3f s\n', t_start/fs));
-        %drawnow;
+        drawnow;
     end
 
 
@@ -99,4 +99,16 @@ end
 if ~sw.plotFFT
     toc; % end the stopwatch
 end
-sound(y, fs);
+% sound(y, fs);
+
+% convolution
+y_win_conv = zeros(L+M-1,1);
+for ii = 1:N_zp
+    
+    inv_x = flip(x_win_zp);
+    y_win_conv(ii) = sum(h_zp(1:ii).*inv_x(end-(ii-1):end));
+end
+figure
+plot(y_win)
+hold on
+plot(y_win_conv)
