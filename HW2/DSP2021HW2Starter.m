@@ -19,18 +19,18 @@ p = 20; % linear prediction, no need to change here (beyond the scope of this ho
 
 y = resample(y,fs,fs1);
 %% Parameters to play with
-framelen = 0.1; % second. [INVESTIGATE]
+framelen = 0.064; % second. [INVESTIGATE]
 L = framelen * fs;
 
 sw.emphasis = 1; % default = 1
-% sw.emphasis = 0;
+
 numFrames = floor(length(y)/L);
 
 Nfreqs = 2^nextpow2(2*L-1)/2; % Num points for plotting the inverse filter response
 df = fs/2/Nfreqs;
 ff = 0:df:fs/2-df;
 
-if sw.emphasis == 0
+if sw.emphasis == 1
     y_emph = filter([1 -0.95],1,y); % This boosts up the high frequency
                 %[PARAM] -0.95 may be tuned anywhere from 0.9 to 0.99
 else
@@ -38,11 +38,10 @@ else
 end
 
 %% STFT and viewing
-% win = ones(L,1); % Rectangular window.
+%win = ones(L,1); % Rectangular window.
 win = hann(L+1); win = win(1:end-1); 
     % Remark: this somewhat awkward way correctly creats a Hann window that
     % satisfies the constant overlap-add condition (will be useful for HW3)
-foundamental = zeros(1,numFrames);
 for kk = 1:numFrames
     ind = (kk-1)*L+1:kk*L;
     ywin = y_emph(ind).*win;
@@ -61,40 +60,14 @@ for kk = 1:numFrames
     Ymag = 20*log10(abs(Y(1:Nfreqs))); %
     Hmax = max(Hmag);
     offset = max(Hmag) - max(Ymag);
-    % find peak
-    Ymag = Ymag+offset;
-    Y_diff = Ymag(1:end-1) -  Ymag(2:end); % calculate difference
-    changesign = (Y_diff(1:end-1,:).*Y_diff(2:end,:))<0; % verify where the sign changes
-    changesign = [false;changesign;false]; % padding zero to compensate the lack of indice
-    cutoff_freq = 1000; % to reduce computation then convert it to index
-    changesign = changesign(1:ceil(cutoff_freq/df));
-    ff_extreme = ff(changesign); % find freq of turning points
-    val_extreme = Ymag(changesign);  % find value ofturning points
-    sigma = std(val_extreme);
-    mu = mean(val_extreme);
-    threshold = mu + 0.5*sigma;
-    
     plot(ff,Hmag); hold on;
-    plot(ff,Ymag,'r',ff_extreme,val_extreme,'blacko'); hold off;
+    plot(ff,Ymag+offset,'r'); hold off;
     set(gca,'xlim',[0 fs/2],'ylim',[Hmax-50, Hmax+5]);
     xlabel('Hz')
-    ff_extreme = ff_extreme(val_extreme > threshold);
-    jj=1;
-    foundamental(kk) = ff_extreme(jj);
-   % for male
-    while foundamental(kk) < 80
-        jj = jj + 1;
-        foundamental(kk) = ff_extreme(jj);
-    end
-   % for female
-%     while foundamental(kk) < 150
-%         jj = jj + 1;
-%         foundamental(kk) = ff_extreme(jj);
-%     end
-%     drawnow;
+    
+    drawnow;
+    %pause;
 end
-
-
 
 figure(2)
 param.fs = fs;
@@ -103,8 +76,3 @@ mySpecgram(y,win,L/2,L,param);
 setFontSizeForAll(14); % This function is a plotting routine I created. 
                         % It goes through all the figures and set the font
                         % the same size.
-                        
-figure
-plot(foundamental)
-xlabel('nth frame')
-ylabel('foundamental frequecy (Hz)')
