@@ -27,7 +27,9 @@ ylabel('degree')
 [~,ind] = max(mag);
 MaxValueAt = f(ind)
 
-GroupDelay = -diff(phs);
+ddegree = -diff(rad2deg(phs));
+df = diff(f);
+GroupDelay = ddegree./df;
 figure
 semilogx(f(1:end-1),GroupDelay)
 title('group delay')
