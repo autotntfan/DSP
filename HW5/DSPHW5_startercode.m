@@ -44,11 +44,12 @@ ub = 0.28*pi;
 [N, DEN, NUM] = FunctionForQ5(lb,ub,pb,sb,Td);
 [h,w] = freqz(NUM,DEN,65536);
 figure
-plot(w/pi,abs(h))
+plot(w/pi,abs(h),'black')
 xlabel('Normalized frequency \times\pi')
 ylabel('|H(j\Omega)|')
 title(['N = ' num2str(N)])
-
+TestForFilter(N, lb, 1);
+legend('Our','Built-in')
 
 y = FunForQ6(NUM,DEN,signal);
 
@@ -76,12 +77,12 @@ plot(freq,abs(Y),'red')
 legend('original','LPF')
 xlabel('frequency (Hz)')
 
-function [Td, DEN, NUM] = FunctionForQ1(N, omega, Omega_c)
+function [Td, DEN, NUM] = FunctionForQ1(N, omega, Omega)
     % N : filter order
     % Omega_c : cut-off frequency in continuous-time domain
-    Td = 2*tan(omega/2)/Omega_c;
+    Td = 2*tan(omega/2)/Omega;
     angle = pi/2 + (0.5 : 1 : N-0.5).*pi./N;
-    s_p = Omega_c*exp(1j*angle); % look up end of text book
+    s_p = Omega*exp(1j*angle); % look up end of text book
 
     z_p = (1+Td*s_p/2)./(1-Td*s_p/2); % Bilinear Transform
     DEN = poly(z_p); % Denominator A(z)
@@ -116,4 +117,18 @@ function y = FunForQ6(NUM, DEN, x)
     for ii = xtermlen:length(x)
         y(ii) = (sum(NUM.*fliplr(x(ii-xtermlen+1:ii)))-sum(DEN(2:end).*fliplr(y(ii-ytermlen:ii-1))))/DEN(1);
     end
+end
+
+function [b,a] = TestForFilter(N, omega_c, flag)
+    [b,a] = butter(N,omega_c/pi);
+    if flag == 0
+        figure
+    else
+        hold on
+    end
+    [h,w] = freqz(b,a,65536);
+    plot(w/pi,abs(h),'r--')
+    xlabel('Normalized frequency \times\pi')
+    ylabel('|H(j\Omega)|')
+    title(['N = ' num2str(N)])
 end
