@@ -123,7 +123,7 @@ function y = FunctionForQ6(NUM, DEN, x)
     xtermlen = length(NUM);
     x = reshape(x,[1,length(x)]);
     y = zeros(size(x));
-    for ii = xtermlen:length(x)
+    for ii = 1:length(x)
         if ii == 1 
             y(ii) = NUM(1)*x(1)/DEN(1);
         elseif 1<ii && ii<xtermlen
