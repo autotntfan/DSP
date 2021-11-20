@@ -67,6 +67,12 @@ fs = 1e3;
 t = 0:1/fs:5;
 TestSignal = 3*cos(2*pi*80*t)+3*sin(2*pi*90*t)+3*sin(2*pi*100*t)+3*cos(2*pi*110*t)+3*sin(2*pi*120*t)+3*sin(2*pi*130*t);
 y = FunctionForQ6(NUM,DEN,TestSignal);
+y_prime = filter(NUM,DEN,TestSignal);
+figure
+plot(t,y,'black',t,y_prime,'red--')
+xlabel('time (s)')
+legend('ourself','built-in')
+
 X = fftshift(fft(TestSignal));
 Y = fftshift(fft(y));
 freq = linspace(-fs/2,fs/2,length(TestSignal));
@@ -76,6 +82,7 @@ hold on
 plot(freq,abs(Y),'red')
 legend('original','LPF')
 xlabel('frequency (Hz)')
+
 
 function [Td, DEN, NUM] = FunctionForQ1(N, omega, Omega)
     % N : filter order
@@ -117,7 +124,13 @@ function y = FunctionForQ6(NUM, DEN, x)
     x = reshape(x,[1,length(x)]);
     y = zeros(size(x));
     for ii = xtermlen:length(x)
-        y(ii) = (sum(NUM.*fliplr(x(ii-xtermlen+1:ii)))-sum(DEN(2:end).*fliplr(y(ii-ytermlen:ii-1))))/DEN(1);
+        if ii == 1 
+            y(ii) = NUM(1)*x(1)/DEN(1);
+        elseif 1<ii && ii<xtermlen
+            y(ii) = (sum(NUM(1:ii).*fliplr(x(1:ii)))-sum(DEN(2:ii).*fliplr(y(1:ii-1))))/DEN(1);
+        else
+            y(ii) = (sum(NUM.*fliplr(x(ii-xtermlen+1:ii)))-sum(DEN(2:end).*fliplr(y(ii-ytermlen:ii-1))))/DEN(1);
+        end
     end
 end
 
@@ -134,3 +147,4 @@ function [b,a] = TestForFilter(N, omega_c, flag)
     ylabel('|H(j\Omega)|')
     title(['N = ' num2str(N)])
 end
+
