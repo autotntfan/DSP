@@ -6,7 +6,7 @@ clear; close all; clc;
 global omega_p omega_stop A
 omega_p = 0.2*pi; % edge frequency of passband
 omega_stop = 0.28*pi; % edge frequency of stopband
-A = 40; % In case 3: Kaiser window
+A = 65; % In case 3: Kaiser window
 filtername = {'rectangular','Hann','Hamming','Kaiser'};
 %% Plotting
 for ii = 1:4
