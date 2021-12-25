@@ -128,7 +128,10 @@ for ii = 1:length(Ls)
     for j = 1:len
         thisterm = 1;
         for m = 1:L+1
+            % p_x(j) = p0x^0 + p1x + p2x^2
             p_x(j) = p_x(j) + P(m)*thisterm;
+            % xplotloc(j)是x(j)，當m增加時，x從x^0->x^L
+            % 第一次跑進來是x^0=1，第二次是x^0*x=x^1，第三次是x^0*x*x=x^2...
             thisterm = thisterm * xplotloc(j);
         end
     end
