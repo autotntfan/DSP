@@ -1,4 +1,5 @@
-Digital Signal Processing 課程學習資料授課老師：清華大學電機系劉奕汶老師
+EE5630 2021 Digital Signal Processing 課程學習資料授課老師：清華大學電機系劉奕汶老師
+
 ---
 Homework grades are all 100.</br>
 Midterm and final exam both are 92, the highest in class.</br>
